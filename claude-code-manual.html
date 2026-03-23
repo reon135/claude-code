@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code 完全マニュアル</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --primary: #f59e0b;
+    --primary-dark: #d97706;
+    --accent: #10b981;
+    --blue: #3b82f6;
+    --purple: #8b5cf6;
+    --pink: #ec4899;
+    --danger: #ef4444;
+    --bg: #080b0f;
+    --bg2: #0d1117;
+    --card: #161b22;
+    --card2: #1e2430;
+    --border: #30363d;
+    --text: #e2e8f0;
+    --text-muted: #8b949e;
+    --text-dim: #484f58;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    font-size: 15px;
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #080b0f 0%, #0d1a0a 40%, #1a1200 100%);
+    padding: 64px 40px 56px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 2px solid var(--border);
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: 50%; transform: translateX(-50%);
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(245,158,11,0.08) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(245,158,11,0.1);
+    border: 1px solid var(--primary);
+    color: #fcd34d;
+    padding: 4px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+  .hero h1 {
+    font-size: 46px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #fcd34d, #fef3c7, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+  .hero p {
+    font-size: 16px;
+    color: var(--text-muted);
+    max-width: 640px;
+    margin: 0 auto 28px;
+    line-height: 1.9;
+  }
+  .hero-tags { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .hero-tag { background: var(--card2); border: 1px solid var(--border); padding: 4px 14px; border-radius: 6px; font-size: 12px; color: var(--text-muted); }
+  .hero-tag.yellow { border-color: rgba(245,158,11,0.5); color: #fcd34d; }
+  .hero-tag.green  { border-color: rgba(16,185,129,0.5);  color: #6ee7b7; }
+  .hero-tag.blue   { border-color: rgba(59,130,246,0.5);  color: #93c5fd; }
+  .hero-tag.purple { border-color: rgba(139,92,246,0.5);  color: #c4b5fd; }
+  .hero-tag.red    { border-color: rgba(239,68,68,0.5);   color: #fca5a5; }
+
+  /* LAYOUT */
+  .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+  /* TOC */
+  .toc { background: var(--card); border: 1px solid var(--border); border-radius: 16px; margin: 40px 0 10px; overflow: hidden; }
+  .toc-header { background: linear-gradient(90deg, rgba(245,158,11,0.1), transparent); padding: 16px 24px; font-weight: 700; font-size: 14px; color: #fcd34d; border-bottom: 1px solid var(--border); }
+  .toc-body { padding: 20px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .toc-item { display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 13px; padding: 4px 0; }
+  .toc-num { width: 22px; height: 22px; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--primary); flex-shrink: 0; }
+
+  /* SECTION */
+  .section { margin: 52px 0; }
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 26px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+  .section-number { width: 44px; height: 44px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; flex-shrink: 0; box-shadow: 0 4px 16px rgba(245,158,11,0.4); }
+  .section-number.green  { background: linear-gradient(135deg,#10b981,#059669); box-shadow: 0 4px 16px rgba(16,185,129,0.4); }
+  .section-number.blue   { background: linear-gradient(135deg,#3b82f6,#1d4ed8); box-shadow: 0 4px 16px rgba(59,130,246,0.4); }
+  .section-number.purple { background: linear-gradient(135deg,#8b5cf6,#6d28d9); box-shadow: 0 4px 16px rgba(139,92,246,0.4); }
+  .section-title    { font-size: 22px; font-weight: 700; }
+  .section-subtitle { font-size: 13px; color: var(--text-dim); margin-top: 3px; }
+
+  /* CALLOUT */
+  .callout { border-radius: 12px; padding: 16px 20px; margin: 20px 0; display: flex; gap: 14px; align-items: flex-start; font-size: 14px; }
+  .callout.info    { background: rgba(245,158,11,0.07); border: 1px solid rgba(245,158,11,0.3); }
+  .callout.warning { background: rgba(239,68,68,0.07);  border: 1px solid rgba(239,68,68,0.3); }
+  .callout.success { background: rgba(16,185,129,0.07); border: 1px solid rgba(16,185,129,0.3); }
+  .callout.blue    { background: rgba(59,130,246,0.07); border: 1px solid rgba(59,130,246,0.3); }
+  .callout.purple  { background: rgba(139,92,246,0.07); border: 1px solid rgba(139,92,246,0.3); }
+  .callout-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .callout-body strong { display: block; margin-bottom: 4px; }
+  .callout.info    .callout-body strong { color: #fcd34d; }
+  .callout.warning .callout-body strong { color: #fca5a5; }
+  .callout.success .callout-body strong { color: #6ee7b7; }
+  .callout.blue    .callout-body strong { color: #93c5fd; }
+  .callout.purple  .callout-body strong { color: #c4b5fd; }
+
+  /* STEP */
+  .steps { display: flex; flex-direction: column; gap: 20px; }
+  .step { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  .step-header { background: linear-gradient(90deg, rgba(245,158,11,0.08), transparent); padding: 14px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
+  .step-badge { background: var(--primary); color: #000; font-weight: 900; font-size: 12px; padding: 2px 10px; border-radius: 20px; letter-spacing: 1px; }
+  .step-badge.mac    { background: var(--accent); color: white; }
+  .step-badge.win    { background: var(--blue); color: white; }
+  .step-badge.both   { background: linear-gradient(90deg,var(--accent),var(--blue)); color: white; }
+  .step-badge.green  { background: #10b981; color: white; }
+  .step-badge.purple { background: #8b5cf6; color: white; }
+  .step-badge.danger { background: #ef4444; color: white; }
+  .step-title { font-weight: 700; font-size: 15px; }
+  .step-body { padding: 20px; }
+  .step-body p { margin-bottom: 12px; color: var(--text-muted); font-size: 14px; }
+  .step-body p:last-child { margin-bottom: 0; }
+
+  /* CODE BLOCK */
+  .code-block { background: #010409; border: 1px solid #21262d; border-radius: 10px; overflow: hidden; margin: 12px 0; font-family: 'JetBrains Mono', monospace; }
+  .code-header { background: #161b22; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #21262d; font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+  .code-body { padding: 16px; font-size: 13px; line-height: 1.8; }
+  .code-comment { color: #6e7681; }
+  .code-cmd     { color: #7dd3fc; }
+  .code-key     { color: #ff7b72; }
+  .code-val     { color: #a5d6ff; }
+  .code-str     { color: #a8ff82; }
+  .code-path    { color: #fbbf24; }
+  .code-output  { color: #6ee7b7; }
+  .code-prompt  { color: #f9a8d4; }
+
+  /* TERMINAL MOCK */
+  .terminal {
+    background: #010409;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 16px 0;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  }
+  .terminal-chrome {
+    background: #161b22;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .t-dots { display: flex; gap: 6px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot.r { background: #ff5f57; }
+  .dot.y { background: #febc2e; }
+  .dot.g { background: #28c840; }
+  .t-title { font-size: 12px; color: var(--text-dim); margin-left: 8px; font-family: 'JetBrains Mono', monospace; }
+  .t-body { padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.9; }
+  .t-prompt { color: #fbbf24; }
+  .t-cmd    { color: #e2e8f0; }
+  .t-out    { color: #6ee7b7; }
+  .t-info   { color: #7dd3fc; }
+  .t-warn   { color: #fbbf24; }
+  .t-err    { color: #f87171; }
+  .t-dim    { color: #484f58; }
+  .t-claude { color: #a78bfa; }
+
+  /* ARROW LIST */
+  .al { list-style: none; }
+  .al li { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 13px; color: var(--text-muted); align-items: flex-start; }
+  .al li:last-child { border-bottom: none; }
+  .am { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .am.a { background:rgba(239,68,68,0.2);   color:#f87171; border:1px solid rgba(239,68,68,0.3); }
+  .am.b { background:rgba(245,158,11,0.2);  color:#fbbf24; border:1px solid rgba(245,158,11,0.3); }
+  .am.c { background:rgba(16,185,129,0.2);  color:#34d399; border:1px solid rgba(16,185,129,0.3); }
+  .am.d { background:rgba(59,130,246,0.2);  color:#60a5fa; border:1px solid rgba(59,130,246,0.3); }
+  .am.e { background:rgba(139,92,246,0.2);  color:#a78bfa; border:1px solid rgba(139,92,246,0.3); }
+
+  /* NUMBERED */
+  .ns { counter-reset: sc; list-style: none; }
+  .ns > li { counter-increment: sc; display: flex; gap: 14px; margin-bottom: 12px; align-items: flex-start; font-size: 14px; color: var(--text-muted); }
+  .ns > li::before { content: counter(sc); width: 26px; height: 26px; background: var(--primary); color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+
+  /* HIGHLIGHT BLOCK */
+  .hb { background: var(--card2); border-radius: 10px; padding: 16px 20px; margin: 12px 0; border-left: 4px solid; }
+  .hb.yellow { border-color: var(--primary); }
+  .hb.green  { border-color: var(--accent); }
+  .hb.blue   { border-color: var(--blue); }
+  .hb.purple { border-color: var(--purple); }
+  .hb.red    { border-color: var(--danger); }
+  .hb h4 { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  .hb.yellow h4 { color: #fbbf24; }
+  .hb.green  h4 { color: #34d399; }
+  .hb.blue   h4 { color: #60a5fa; }
+  .hb.purple h4 { color: #a78bfa; }
+  .hb.red    h4 { color: #f87171; }
+  .hb p, .hb li { font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+
+  /* TABLE */
+  .tbl { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+  .tbl th { background: var(--card2); padding: 12px 16px; text-align: left; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+  .tbl td { padding: 12px 16px; border-top: 1px solid var(--border); vertical-align: top; color: var(--text-muted); line-height: 1.6; }
+  .tbl tr:hover td { background: rgba(255,255,255,0.02); }
+  .tbl .label { color: var(--text); font-weight: 600; }
+  .check { color: #34d399; font-weight: 700; }
+
+  /* INLINE */
+  .ik { background: var(--card2); border: 1px solid var(--border); padding: 1px 8px; border-radius: 5px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #fbbf24; }
+  .ht { background: rgba(245,158,11,0.1); border-bottom: 2px solid var(--primary); color: #fde68a; padding: 0 3px; }
+
+  /* OS SPLIT */
+  .os-split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .os-card { background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+  .os-header { padding: 12px 16px; display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13px; border-bottom: 1px solid var(--border); }
+  .os-header.mac { background: rgba(16,185,129,0.08);  color: #6ee7b7; }
+  .os-header.win { background: rgba(59,130,246,0.08);  color: #93c5fd; }
+  .os-body { padding: 16px; font-size: 13px; color: var(--text-muted); }
+
+  /* COMMAND TABLE */
+  .cmd-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+  .cmd-table tr { border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .cmd-table tr:last-child { border-bottom: none; }
+  .cmd-table td { padding: 8px 12px; vertical-align: top; line-height: 1.6; }
+  .cmd-table .cmd { font-family: 'JetBrains Mono', monospace; color: #fbbf24; font-size: 12px; white-space: nowrap; }
+  .cmd-table .desc { color: var(--text-muted); font-size: 12px; }
+  .cmd-table .star { color: #f59e0b; font-size: 11px; }
+
+  /* FLOW */
+  .flow { display: flex; align-items: center; gap: 10px; padding: 16px; background: var(--card2); border-radius: 12px; margin: 16px 0; flex-wrap: wrap; justify-content: center; }
+  .fbox { background: var(--card); border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 16px; text-align: center; min-width: 88px; }
+  .fbox.hi  { border-color: var(--primary); background: rgba(245,158,11,0.06); }
+  .fbox.hi2 { border-color: var(--accent);  background: rgba(16,185,129,0.06); }
+  .fbox-icon  { font-size: 22px; margin-bottom: 4px; }
+  .fbox-label { font-size: 11px; color: var(--text-muted); font-weight: 600; line-height: 1.4; }
+  .farrow { font-size: 20px; color: var(--primary); }
+
+  /* CLAUDE.md MOCK */
+  .claudemd {
+    background: #010409;
+    border: 1.5px solid rgba(245,158,11,0.4);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+  .claudemd-header {
+    background: rgba(245,158,11,0.08);
+    padding: 10px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #fbbf24;
+    border-bottom: 1px solid rgba(245,158,11,0.2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .claudemd-body {
+    padding: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.9;
+  }
+  .md-h1     { color: #fbbf24; font-size: 14px; font-weight: 700; }
+  .md-h2     { color: #7dd3fc; font-size: 13px; font-weight: 700; }
+  .md-text   { color: #8b949e; }
+  .md-bullet { color: #a8ff82; }
+  .md-code   { color: #f9a8d4; }
+
+  /* VS CODE MOCK */
+  .vscode-frame {
+    background: #1e1e1e;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 16px 0;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  .vscode-titlebar {
+    background: #3c3c3c;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .vscode-body {
+    display: grid;
+    grid-template-columns: 48px 1fr 300px;
+    min-height: 220px;
+  }
+  .vscode-sidebar {
+    background: #333333;
+    border-right: 1px solid #252526;
+    padding: 8px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    font-size: 18px;
+  }
+  .vscode-sidebar span { cursor: pointer; opacity: 0.5; }
+  .vscode-sidebar span.active { opacity: 1; color: #569cd6; }
+  .vscode-editor {
+    background: #1e1e1e;
+    padding: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+  }
+  .vscode-panel {
+    background: #252526;
+    border-left: 1px solid #3c3c3c;
+    padding: 12px;
+    font-size: 12px;
+  }
+  .vscode-panel-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #8b8b8b;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #3c3c3c;
+  }
+  .vsc-msg { display: flex; gap: 8px; margin-bottom: 10px; }
+  .vsc-msg-icon { font-size: 14px; flex-shrink: 0; }
+  .vsc-msg-text { font-size: 11px; color: #9cdcfe; line-height: 1.5; }
+  .vsc-msg-text.user { color: #ce9178; }
+  .vsc-input {
+    background: #3c3c3c;
+    border: 1px solid #569cd6;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 11px;
+    color: #d4d4d4;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  /* DIVIDER */
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 52px 0; }
+
+  /* BADGE */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+  .badge.yellow { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); color: #fbbf24; }
+  .badge.green  { background: rgba(16,185,129,0.15);  border: 1px solid rgba(16,185,129,0.3);  color: #34d399; }
+  .badge.blue   { background: rgba(59,130,246,0.15);  border: 1px solid rgba(59,130,246,0.3);  color: #60a5fa; }
+  .badge.red    { background: rgba(239,68,68,0.15);   border: 1px solid rgba(239,68,68,0.3);   color: #f87171; }
+
+  /* FOOTER */
+  .footer { background: var(--card); border-top: 1px solid var(--border); padding: 36px 40px; text-align: center; color: var(--text-dim); font-size: 13px; margin-top: 60px; }
+  .footer a { color: var(--primary); text-decoration: none; }
+
+  @media (max-width: 700px) {
+    .hero h1 { font-size: 28px; }
+    .os-split { grid-template-columns: 1fr; }
+    .toc-body { grid-template-columns: 1fr; }
+    .vscode-body { grid-template-columns: 1fr; }
+    .vscode-sidebar, .vscode-panel { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">📖 完全マニュアル 2026年版</div>
+  <h1>Claude Code<br>完全活用ガイド</h1>
+  <p>「AIにコードを書いてもらう」を超えた、ファイル操作・自動化・業務効率化のすべてをこの一冊に。プログラミング未経験でも使えるように、ターミナルの基礎から丁寧に解説します。</p>
+  <div class="hero-tags">
+    <span class="hero-tag yellow">⚡ AIコーディングエージェント</span>
+    <span class="hero-tag green">🍎 Mac 対応</span>
+    <span class="hero-tag blue">🪟 Windows 対応</span>
+    <span class="hero-tag purple">💻 VS Code 連携</span>
+    <span class="hero-tag red">🔰 非エンジニアもOK</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-header">📋 もくじ</div>
+    <div class="toc-body">
+      <div class="toc-item"><span class="toc-num">1</span> Claude Code とは何か？</div>
+      <div class="toc-item"><span class="toc-num">2</span> 3つの使い方の違い</div>
+      <div class="toc-item"><span class="toc-num">3</span> 必要な環境・プラン</div>
+      <div class="toc-item"><span class="toc-num">4</span> インストール（Mac編）</div>
+      <div class="toc-item"><span class="toc-num">5</span> インストール（Windows編）</div>
+      <div class="toc-item"><span class="toc-num">6</span> はじめて起動・ログイン</div>
+      <div class="toc-item"><span class="toc-num">7</span> 基本操作と主要コマンド</div>
+      <div class="toc-item"><span class="toc-num">8</span> CLAUDE.md で設定を記憶させる</div>
+      <div class="toc-item"><span class="toc-num">9</span> VS Code 拡張機能で使う</div>
+      <div class="toc-item"><span class="toc-num">10</span> 活用例・よくある問題</div>
+      <div class="toc-item" style="grid-column:1/-1;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:8px 12px;margin-top:4px;">
+        <span class="toc-num" style="background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.4);color:#f87171;">🚨</span>
+        <span style="color:#fca5a5;font-weight:700;">【重要】数十万円の課金を防ぐ完全ガイド</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== S1 ===== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">1</div>
+      <div>
+        <div class="section-title">Claude Code とは何か？</div>
+        <div class="section-subtitle">「指示するだけで実際に作ってくれるAI」</div>
+      </div>
+    </div>
+
+    <p style="color:var(--text-muted);font-size:14px;line-height:1.9;margin-bottom:20px;">
+      Claude.aiが「回答してくれるAI」なら、Claude Codeは<span class="ht">パソコン上で実際にファイルを作り・編集し・実行してくれるAI</span>です。<br>
+      「TODOアプリを作って」と指示すると、コードを書くだけでなく、ファイルを生成して、テストを実行して、完成まで自律的にやり遂げてくれます。
+    </p>
+
+    <!-- Comparison -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0;">
+      <div style="background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:18px;">
+        <div style="font-weight:700;color:#f87171;margin-bottom:12px;font-size:13px;">💬 Claude.ai（通常チャット）</div>
+        <ul style="list-style:none;font-size:13px;color:var(--text-muted);line-height:2;">
+          <li>📄 コードを<strong>表示</strong>してくれる</li>
+          <li>❌ ファイルを作るのは自分</li>
+          <li>❌ 実行・テストは自分</li>
+          <li>❌ エラー修正は自分</li>
+        </ul>
+      </div>
+      <div style="background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);border-radius:12px;padding:18px;">
+        <div style="font-weight:700;color:#34d399;margin-bottom:12px;font-size:13px;">⚡ Claude Code</div>
+        <ul style="list-style:none;font-size:13px;color:var(--text-muted);line-height:2;">
+          <li>🗂️ ファイルを<strong>実際に作成・編集</strong></li>
+          <li>▶️ コードを<strong>実行</strong>してくれる</li>
+          <li>🔍 テスト・デバッグも<strong>自動</strong></li>
+          <li>🔄 エラーが出たら<strong>自己修正</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <strong>プログラミング知識は不要！</strong>
+        「ショッピングリストアプリを作って」「このデータをExcelにまとめて」「ウェブサイトのデザインを変えて」——自然な日本語で伝えるだけで、Claude Codeが自律的に実現します。コードを読む必要すらありません。
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== S2 ===== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">2</div>
+      <div>
+        <div class="section-title">3つの使い方の違い</div>
+        <div class="section-subtitle">自分に合った方法を選ぼう</div>
+      </div>
+    </div>
+
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>方法</th>
+          <th>① デスクトップアプリ</th>
+          <th>② VS Code 拡張機能</th>
+          <th>③ ターミナル（CLI）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="label">難易度</td>
+          <td class="check">★☆☆ 最も簡単</td>
+          <td>★★☆ 普通</td>
+          <td>★★★ 上級</td>
+        </tr>
+        <tr>
+          <td class="label">向いている人</td>
+          <td>Claude Code初心者、非エンジニア</td>
+          <td>コード編集もしたい人</td>
+          <td>エンジニア・自動化したい人</td>
+        </tr>
+        <tr>
+          <td class="label">インストール</td>
+          <td class="check">アプリをDLするだけ</td>
+          <td>VS Code + 拡張機能</td>
+          <td>ターミナルでコマンド実行</td>
+        </tr>
+        <tr>
+          <td class="label">できること</td>
+          <td>基本的なコード生成・ファイル操作</td>
+          <td class="check">ファイルを見ながらリアルタイム編集</td>
+          <td class="check">すべての機能・MCP連携・自動化</td>
+        </tr>
+        <tr>
+          <td class="label">このマニュアルの対応</td>
+          <td class="check">Section 4〜6</td>
+          <td class="check">Section 9</td>
+          <td class="check">Section 4〜7</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="hb yellow">
+      <h4>🎯 まず何から始めるべき？</h4>
+      <p>初めての方は<strong>デスクトップアプリ（①）</strong>から始めましょう。慣れてきたら VS Code 拡張（②）に移行すると、さらに使いやすくなります。ターミナル版（③）はMCP連携や自動化が必要になってから挑戦で十分です。</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== S3 ===== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">3</div>
+      <div>
+        <div class="section-title">必要な環境・プラン</div>
+        <div class="section-subtitle">使い始める前に確認しよう</div>
+      </div>
+    </div>
+
+    <div class="os-split">
+      <div class="os-card">
+        <div class="os-header mac">🍎 Mac の要件</div>
+        <div class="os-body">
+          <ul class="al">
+            <li><span class="am c">✓</span> macOS 最新バージョン推奨</li>
+            <li><span class="am c">✓</span> Apple Silicon（M1〜）または Intel Mac</li>
+            <li><span class="am c">✓</span> Pro プラン以上（月額$20〜）</li>
+            <li><span class="am c">✓</span> ターミナル使用時は Node.js v18以上</li>
+          </ul>
+        </div>
+      </div>
+      <div class="os-card">
+        <div class="os-header win">🪟 Windows の要件</div>
+        <div class="os-body">
+          <ul class="al">
+            <li><span class="am d">✓</span> Windows 10/11（x64）</li>
+            <li><span class="am d">✓</span> WSL 2 推奨（ターミナル使用時）</li>
+            <li><span class="am d">✓</span> Git for Windows（ターミナル使用時）</li>
+            <li><span class="am d">✓</span> Pro プラン以上（月額$20〜）</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <table class="tbl" style="margin-top:20px;">
+      <thead>
+        <tr><th>プラン</th><th>月額</th><th>Claude Code</th><th>用途</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="label">⭐ Pro</td><td>$20（約3,000円）</td><td class="check">利用可</td><td>個人・初心者に最適</td></tr>
+        <tr><td class="label">🚀 Max 5x</td><td>$100（約15,000円）</td><td class="check">利用可・5倍枠</td><td>毎日ヘビーに使う人</td></tr>
+        <tr><td class="label">🔥 Max 20x</td><td>$200（約30,000円）</td><td class="check">利用可・20倍枠</td><td>プロ開発者・業務使用</td></tr>
+        <tr><td class="label">👥 Team</td><td>$25/人〜</td><td class="check">利用可</td><td>チーム開発</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout success">
+      <div class="callout-icon">✅</div>
+      <div class="callout-body">
+        <strong>まずはProプランから</strong>
+        Proプラン（$20/月）から始めるのがおすすめです。制限に達しても5時間でリセットされます。週3回以上制限に達するようになったらMax 5xへのアップグレードを検討しましょう。
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== S4 Mac ===== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number green">4</div>
+      <div>
+        <div class="section-title">インストール（Mac 編）</div>
+        <div class="section-subtitle">デスクトップアプリとターミナル版、両方解説</div>
+      </div>
+    </div>
+
+    <div class="steps">
+      <!-- Desktop App -->
+      <div class="step">
+        <div class="step-header">
+          <span class="step-badge mac">方法①</span>
+          <span class="step-title">デスクトップアプリをインストール（初心者向け）</span>
+        </div>
+        <div class="step-body">
+          <p>一番かんたんな方法です。Claude Desktopをインストールすれば、中にClaude Codeのタブが含まれています。</p>
+          <ol class="ns">
+            <li><a href="https://claude.com/download" style="color:#fbbf24;">claude.com/download</a> を開いて「macOS」ボタンをクリック</li>
+            <li>ダウンロードした <span class="ik">Claude.dmg</span> をダブルクリック</li>
+            <li>Claudeのアイコンを「アプリケーション」フォルダにドラッグ＆ドロップ</li>
+            <li>アプリを起動してClaudeアカウントでログイン（Pro以上）</li>
+            <li>上部タブから「<strong>Code</strong>」をクリックして完了</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Terminal Mac -->
+      <div class="step">
+        <div class="step-header">
+          <span class="step-badge mac">方法②</span>
+          <span class="step-title">ターミナルからインストール（上級・全機能利用可能）</span>
+        </div>
+        <div class="step-body">
+          <p>すべての機能を使いたい場合はターミナル（CLI）版をインストールします。<span class="ik">ターミナル</span>はMacの「LaunchPad → ターミナル」から開けます。</p>
+
+          <div class="terminal">
+            <div class="terminal-chrome">
+              <div class="t-dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div>
+              <div class="t-title">ターミナル</div>
+            </div>
+            <div class="t-body">
+              <div><span class="t-dim"># ── Step 1: Homebrewでインストール（推奨）──</span></div>
+              <div><span class="t-prompt">$ </span><span class="t-cmd">brew install claude-code</span></div>
+              <br>
+              <div><span class="t-dim"># または公式インストーラーで直接インストール</span></div>
+              <div><span class="t-prompt">$ </span><span class="t-cmd">curl -fsSL https://claude.ai/install.sh | sh</span></div>
+              <br>
+              <div><span class="t-dim"># ── Step 2: バージョン確認 ──</span></div>
+              <div><span class="t-prompt">$ </span><span class="t-cmd">claude --version</span></div>
+              <div><span class="t-out">Claude Code 2.x.x</span></div>
+            </div>
+          </div>
+
+          <div class="callout blue">
+            <div class="callout-icon">💡</div>
+            <div class="callout-body">
+              <strong>Homebrewとは？</strong>
+              Macで使えるアプリ管理ツールです。インストールされていない場合は <a href="https://brew.sh" style="color:#93c5fd;">brew.sh</a> から1コマンドでインストールできます。Homebrewでのインストールは自動更新されません。定期的に <span class="ik">brew upgrade claude-code</span> を実行して最新版を維持しましょう。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== S5 Windows ===== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number blue">5</div>
+      <div>
+        <div class="section-title">インストール（Windows 編）</div>
+        <div class="section-subtitle">デスクトップアプリとWSL版を解説</div>
+      </div>
+    </div>
+
+    <div class="steps">
+      <!-- Desktop Windows -->
+      <div class="step">
+        <div class="step-header">
+          <span class="step-badge win">方法①</span>
+          <span class="step-title">デスクトップアプリをインストール（初心者向け）</span>
+        </div>
+        <div class="step-body">
+          <ol class="ns">
+            <li><a href="https://claude.com/download" style="color:#fbbf24;">claude.com/download</a> を開いて「Windows」ボタンをクリック</li>
+            <li>ダウンロードした <span class="ik">ClaudeSetup.exe</span> をダブルクリック</li>
+            <li>インストールウィザードに従って進む（「はい」→「次へ」→「インストール」）</li>
+            <li>スタートメニューからClaudeを起動してログイン</li>
+            <li>上部の「<strong>Code</strong>」タブをクリックして完了</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- WSL -->
+      <div class="step">
+        <div class="step-header">
+          <span class="step-badge win">方法②</span>
+          <span class="step-title">WSL経由でターミナル版をインストール（全機能利用）</span>
+        </div>
+        <div class="step-body">
+          <p><span class="ht">WSL（Windows Subsystem for Linux）</span>とは、Windows上でLinux（Mac風のターミナル環境）を動かす仕組みです。Claude Codeのフル機能を使うにはWSLが必要です。</p>
+
+          <div class="terminal">
+            <div class="terminal-chrome">
+              <div class="t-dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div>
+              <div class="t-title">PowerShell（管理者権限）</div>
+            </div>
+            <div class="t-body">
+              <div><span class="t-dim"># ── Step 1: WSL2 をインストール（PowerShellで実行）──</span></div>
+              <div><span class="t-prompt">PS> </span><span class="t-cmd">wsl --install</span></div>
+              <div><span class="t-out">インストール中... PCを再起動してください</span></div>
+              <br>
+              <div><span class="t-dim"># ── Step 2: 再起動後、Ubuntuを起動して以下を実行 ──</span></div>
+              <div><span class="t-prompt">$ </span><span class="t-cmd">curl -fsSL https://claude.ai/install.sh | sh</span></div>
+              <br>
+              <div><span class="t-dim"># ── Step 3: 確認 ──</span></div>
+              <div><span class="t-prompt">$ </span><span class="t-cmd">claude --version</span></div>
+              <div><span class="t-out">Claude Code 2.x.x</span></div>
+            </div>
+          </div>
+
+          <div class="callout warning">
+            <div class="callout-icon">⚠️</div>
+            <div class="callout-body">
+              <strong>WSLはWindows上のLinux環境です</strong>
+              WSL 2はセキュリティのためのサンドボックスをサポートしています。WSL 1はサポートしていません。また、WindowsにはGit for Windowsが必要です。インストールされていない場合は先にインストールしてください。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WinGet -->
+      <div class="step">
+        <div class="step-header">
+          <span class="step-badge win">方法③</span>
+          <span class="step-title">WinGet でインストール（Windows 10/11）</span>
+        </div>
+        <div class="step-body">
+          <p>Windows標準のパッケージマネージャー WinGet を使う方法です。PowerShellで実行できます。</p>
+          <div class="terminal">
+            <div class="terminal-chrome">
+              <div class="t-dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div>
+              <div class="t-title">PowerShell</div>
+            </div>
+            <div class="t-body">
+              <div><span class="t-prompt">PS> </span><span class="t-cmd">winget install Anthropic.ClaudeCode</span></div>
+              <div><span class="t-out">インストール完了</span></div>
+            </div>
+          </div>
+          <div class="callout info">
+            <div class="callout-icon">📌</div>
+            <div class="callout-body">WinGetでのインストールは自動更新されません。定期的に <span class="ik">winget upgrade Anthropic.ClaudeCode</span> を実行して更新してください。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== S6 ===== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">6</div>
+      <div>
+        <div class="section-title">はじめて起動・ログイン</div>
+        <div class="section-subtitle">インストール後の最初の手順</div>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-header">
+          <span class="step-badge both">共通</span>
+          <span class="step-title">ターミナル版の初回起動とログイン</span>
+        </div>
+        <div class="step-body">
+          <div class="terminal">
+            <div class="terminal-chrome">
+              <div class="t-dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div>
+              <div class="t-title">ターミナル</div>
+            </div>
+            <div class="t-body">
+              <div><span class="t-dim"># ── Step 1: 作業フォルダを作成して移動 ──</span></div>
+              <div><span class="t-prompt">$ </span><span class="t-cmd">mkdir ~/my-projects && cd ~/my-projects</span></div>
+              <br>
+              <div><span class="t-dim"># ── Step 2: Claude Code を起動 ──</span></div>
+              <div><span class="t-prompt">$ </span><span class="t-cmd">claude</span></div>
+              <br>
+              <div><span class="t-info">? How would you like to authenticate?</span></div>
+              <div><span class="t-info">  ❯ Login with Claude.ai subscription (Recommended)</span></div>
+              <div><span class="t-dim">    Enter API key</span></div>
+              <br>
+              <div><span class="t-dim"># 「Login with Claude.ai subscription」を選択してEnter</span></div>
+              <div><span class="t-out">✓ ブラウザが開きます。Claudeアカウントでログインしてください</span></div>
+              <br>
+              <div><span class="t-out">✓ 認証完了！Claude Codeが使えるようになりました</span></div>
+              <br>
+              <div><span class="t-claude">Claude: </span><span class="t-cmd">こんにちは！何をお手伝いしますか？</span></div>
+              <div><span class="t-prompt">&gt; </span><span class="t-dim">ここに日本語で指示を入力...</span></div>
+            </div>
+          </div>
+
+          <ul class="al" style="margin-top:12px;">
+            <li><span class="am a">A</span> <strong>作業フォルダを先に作ること</strong>：デスクトップで起動すると全ファイルがアクセス対象になります。必ず専用フォルダの中で <span class="ik">claude</span> と実行しましょう。</li>
+            <li><span class="am b">B</span> <strong>ログイン方法の選択</strong>：「subscription（月額プラン）」を選ぶとブラウザが開きます。Claudeアカウントでログインして認証を完了させてください。</li>
+            <li><span class="am c">C</span> <strong>インストール確認</strong>：<span class="ik">claude doctor</span> コマンドを実行すると環境の状態を診断できます。</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-header">
+          <span class="step-badge">Step</span>
+          <span class="step-title">はじめての指示を試してみよう</span>
+        </div>
+        <div class="step-body">
+          <div class="terminal">
+            <div class="terminal-chrome">
+              <div class="t-dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div>
+              <div class="t-title">Claude Code セッション</div>
+            </div>
+            <div class="t-body">
+              <div><span class="t-prompt">&gt; </span><span class="t-cmd">簡単なTODOリストアプリのHTMLファイルを作って</span></div>
+              <br>
+              <div><span class="t-claude">Claude: </span><span class="t-cmd">TODOリストアプリを作成します。</span></div>
+              <div><span class="t-out">● ファイルを作成中: todo.html</span></div>
+              <div><span class="t-out">● スタイルシートを追加中...</span></div>
+              <div><span class="t-out">● JavaScriptを実装中...</span></div>
+              <div><span class="t-out">✓ todo.html が作成されました！</span></div>
+              <br>
+              <div><span class="t-claude">Claude: </span><span class="t-cmd">ブラウザで todo.html を開けば動作確認できます。</span></div>
+              <div><span class="t-dim">        タスクの追加・削除・完了チェックが可能です。</span></div>
+            </div>
+          </div>
+          <div class="hb green">
+            <h4>✅ これで完了！</h4>
+            <p>フォルダの中に <span class="ik">todo.html</span> が生成されています。ダブルクリックすればブラウザで動くアプリが確認できます。コードをまったく書かずに、指示だけでアプリが完成しました。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== S7 ===== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">7</div>
+      <div>
+        <div class="section-title">基本操作と主要コマンド</div>
+        <div class="section-subtitle">最初に覚えるべきコマンド一覧</div>
+      </div>
+    </div>
+
+    <p style="color:var(--text-muted);font-size:14px;margin-bottom:16px;">
+      Claude Codeでは <span class="ht">/（スラッシュ）から始まるコマンド</span>で特定の操作を素早く実行できます。全部覚える必要はなく、最初は以下の5つだけ知っていれば十分です。
+    </p>
+
+    <!-- Must know commands -->
+    <div style="background:var(--card);border:1px solid rgba(245,158,11,0.3);border-radius:14px;overflow:hidden;margin:16px 0;">
+      <div style="background:rgba(245,158,11,0.08);padding:12px 18px;font-weight:700;font-size:13px;color:#fbbf24;border-bottom:1px solid rgba(245,158,11,0.2);">⭐ 最初に覚える5つのコマンド</div>
+      <table class="cmd-table" style="padding:8px;">
+        <tr>
+          <td class="cmd">/help</td>
+          <td class="desc">使えるコマンドの一覧を表示。困ったらまずここ</td>
+          <td><span class="badge yellow">必須</span></td>
+        </tr>
+        <tr>
+          <td class="cmd">/clear</td>
+          <td class="desc">会話履歴をリセット。別のタスクに切り替えるときに使う</td>
+          <td><span class="badge yellow">必須</span></td>
+        </tr>
+        <tr>
+          <td class="cmd">/compact</td>
+          <td class="desc">会話の要約を圧縮して容量を節約。長い作業の途中で使う</td>
+          <td><span class="badge yellow">必須</span></td>
+        </tr>
+        <tr>
+          <td class="cmd">/init</td>
+          <td class="desc">プロジェクトの設定ファイル（CLAUDE.md）を自動生成</td>
+          <td><span class="badge green">便利</span></td>
+        </tr>
+        <tr>
+          <td class="cmd">/exit</td>
+          <td class="desc">Claude Codeを終了する</td>
+          <td><span class="badge green">便利</span></td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- All commands grouped -->
+    <div style="margin-top:24px;">
+      <p style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px;">📋 よく使うコマンド 全リスト</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <!-- Session -->
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+          <div style="background:rgba(245,158,11,0.08);padding:10px 14px;font-size:12px;font-weight:700;color:#fbbf24;border-bottom:1px solid var(--border);">🔄 セッション管理</div>
+          <table class="cmd-table" style="padding:4px;">
+            <tr><td class="cmd">/clear</td><td class="desc">会話履歴をリセット</td></tr>
+            <tr><td class="cmd">/compact</td><td class="desc">コンテキストを圧縮</td></tr>
+            <tr><td class="cmd">/resume</td><td class="desc">過去のセッションを再開</td></tr>
+            <tr><td class="cmd">/cost</td><td class="desc">使用量・コストを確認</td></tr>
+          </table>
+        </div>
+        <!-- Project -->
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+          <div style="background:rgba(16,185,129,0.08);padding:10px 14px;font-size:12px;font-weight:700;color:#34d399;border-bottom:1px solid var(--border);">📁 プロジェクト設定</div>
+          <table class="cmd-table" style="padding:4px;">
+            <tr><td class="cmd">/init</td><td class="desc">CLAUDE.mdを自動生成</td></tr>
+            <tr><td class="cmd">/memory</td><td class="desc">記憶・メモリを管理</td></tr>
+            <tr><td class="cmd">/add-dir</td><td class="desc">作業ディレクトリを追加</td></tr>
+            <tr><td class="cmd">/model</td><td class="desc">使用モデルを切り替え</td></tr>
+          </table>
+        </div>
+        <!-- Info -->
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+          <div style="background:rgba(59,130,246,0.08);padding:10px 14px;font-size:12px;font-weight:700;color:#60a5fa;border-bottom:1px solid var(--border);">ℹ️ 情報・確認</div>
+          <table class="cmd-table" style="padding:4px;">
+            <tr><td class="cmd">/help</td><td class="desc">コマンド一覧を表示</td></tr>
+            <tr><td class="cmd">/status</td><td class="desc">現在の状態を確認</td></tr>
+            <tr><td class="cmd">/doctor</td><td class="desc">環境診断を実行</td></tr>
+            <tr><td class="cmd">/context</td><td class="desc">コンテキスト使用量を確認</td></tr>
+          </table>
+        </div>
+        <!-- Integration -->
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+          <div style="background:rgba(139,92,246,0.08);padding:10px 14px;font-size:12px;font-weight:700;color:#a78bfa;border-bottom:1px solid var(--border);">🔌 連携・拡張</div>
+          <table class="cmd-table" style="padding:4px;">
+            <tr><td class="cmd">/mcp</td><td class="desc">MCP接続を管理</td></tr>
+            <tr><td class="cmd">/pr-comments</td><td class="desc">GitHubのPRコメントを取得</td></tr>
+            <tr><td class="cmd">/schedule</td><td class="desc">定期タスクを設定</td></tr>
+            <tr><td class="cmd">/permissions</td><td class="desc">権限設定を確認</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Keyboard shortcuts -->
+    <div style="margin-top:20px;">
+      <p style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px;">⌨️ 覚えておくと便利なキー操作</p>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+        <table class="cmd-table" style="padding:4px;">
+          <tr>
+            <td class="cmd">Esc キー</td>
+            <td class="desc"><strong>実行中の処理を中断</strong>。Claudeが暴走しそうなときにすぐ押す</td>
+            <td><span class="badge yellow">最重要</span></td>
+          </tr>
+          <tr>
+            <td class="cmd">Esc × 2回</td>
+            <td class="desc">直前の操作を巻き戻し（/rewindと同じ）</td>
+            <td><span class="badge green">便利</span></td>
+          </tr>
+          <tr>
+            <td class="cmd">Shift + Enter</td>
+            <td class="desc">改行して長い指示文を複数行で入力</td>
+            <td><span class="badge green">便利</span></td>
+          </tr>
+          <tr>
+            <td class="cmd">Ctrl + C</td>
+            <td class="desc">強制終了</td>
+            <td><span class="badge green">便利</span></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== S8 CLAUDE.md ===== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number purple">8</div>
+      <div>
+        <div class="section-title">CLAUDE.md でClaudeに設定を記憶させる</div>
+        <div class="section-subtitle">毎回同じ説明をしなくて済む「AI専用メモ帳」</div>
+      </div>
+    </div>
+
+    <p style="color:var(--text-muted);font-size:14px;line-height:1.9;margin-bottom:16px;">
+      CLAUDE.mdは<span class="ht">プロジェクトのルールや好みをClaudeに永続的に記憶させるファイル</span>です。<br>
+      「毎回コーディングルールを説明するのが面倒」「自分のスタイルで書いてほしい」という悩みを解決します。<span class="ik">/init</span> コマンドで自動生成できます。
+    </p>
+
+    <!-- CLAUDE.md example -->
+    <div class="claudemd">
+      <div class="claudemd-header">📄 CLAUDE.md — 実際の設定例（コンテンツ販売ビジネス向け）</div>
+      <div class="claudemd-body">
+        <div class="md-h1"># プロジェクト：レオのコンテンツ販売自動化</div>
+        <br>
+        <div class="md-h2">## 基本情報</div>
+        <div class="md-bullet">- ブランド名：レオン心理学</div>
+        <div class="md-bullet">- 主な作業：Threadsの投稿文・note記事・LINEシナリオ作成</div>
+        <div class="md-bullet">- ターゲット：SNS副業初心者・ソロ起業家</div>
+        <br>
+        <div class="md-h2">## ライティングルール</div>
+        <div class="md-bullet">- 文体：です・ます調をベースに、口語を交える</div>
+        <div class="md-bullet">- 【】で見出し、＜＞で強調（アスタリスク太字は使わない）</div>
+        <div class="md-bullet">- 短い文と長い文を交互にリズムを作る</div>
+        <div class="md-bullet">- 読者への語りかけを多用する（「〜ですよね？」等）</div>
+        <br>
+        <div class="md-h2">## 作業フォルダ構成</div>
+        <div class="md-code">- posts/threads/ ← Threads投稿文</div>
+        <div class="md-code">- posts/note/    ← note記事</div>
+        <div class="md-code">- line/          ← LINEシナリオ</div>
+        <br>
+        <div class="md-h2">## 禁止事項</div>
+        <div class="md-bullet">- マーケティング用語の乱用</div>
+        <div class="md-bullet">- 横並びの「します・なります・です」の繰り返し</div>
+        <div class="md-text">（上記が続いたら指摘してください）</div>
+      </div>
+    </div>
+
+    <div class="steps" style="margin-top:20px;">
+      <div class="step">
+        <div class="step-header">
+          <span class="step-badge">Step 1</span>
+          <span class="step-title">CLAUDE.mdを自動生成する</span>
+        </div>
+        <div class="step-body">
+          <div class="terminal">
+            <div class="terminal-chrome"><div class="t-dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="t-title">ターミナル</div></div>
+            <div class="t-body">
+              <div><span class="t-dim"># プロジェクトフォルダに移動して実行</span></div>
+              <div><span class="t-prompt">$ </span><span class="t-cmd">claude</span></div>
+              <div><span class="t-prompt">&gt; </span><span class="t-cmd">/init</span></div>
+              <div><span class="t-out">✓ CLAUDE.md を生成しました</span></div>
+              <div><span class="t-claude">Claude: </span><span class="t-cmd">プロジェクトの概要を確認しました。以下のCLAUDE.mdを作成しました。</span></div>
+              <div><span class="t-dim">        必要に応じて編集してください。</span></div>
+            </div>
+          </div>
+          <p>/init を実行するとフォルダの内容を自動解析してCLAUDE.mdを生成してくれます。その後、内容を自分のルールに合わせて編集しましょう。</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-header">
+          <span class="step-badge">Step 2</span>
+          <span class="step-title">CLAUDE.mdを手動で作成・編集する</span>
+        </div>
+        <div class="step-body">
+          <p>プロジェクトフォルダの直下に <span class="ik">CLAUDE.md</span> というファイルを作成して内容を書くだけです。メモ帳・VS Code・どんなテキストエディタでも編集できます。</p>
+          <div class="hb green">
+            <h4>📝 CLAUDE.mdに書くと効果的な内容</h4>
+            <p>
+              プロジェクトの目的・背景 / ライティングスタイル・禁止表現 / よく使うフォルダ構成<br>
+              繰り返し依頼する作業のテンプレート / エラー時の対応ルール / 出力形式の指定
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== S9 VS Code ===== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number green">9</div>
+      <div>
+        <div class="section-title">VS Code 拡張機能で使う</div>
+        <div class="section-subtitle">コードを見ながらリアルタイムで編集できる最強の環境</div>
+      </div>
+    </div>
+
+    <p style="color:var(--text-muted);font-size:14px;margin-bottom:16px;">
+      VS Code（Visual Studio Code）はMicrosoftの無料コードエディタです。Claude Codeの拡張機能を入れると、<span class="ht">ファイルを見ながらClaudeと対話できる理想的な環境</span>になります。
+    </p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-header">
+          <span class="step-badge both">Step 1</span>
+          <span class="step-title">VS Code をインストールする</span>
+        </div>
+        <div class="step-body">
+          <p>まだVS Codeをお持ちでない方は <a href="https://code.visualstudio.com" style="color:#fbbf24;">code.visualstudio.com</a> からダウンロードしてインストールしてください（完全無料）。</p>
+          <div class="hb blue">
+            <h4>💡 VS Codeとは？</h4>
+            <p>機能つきのメモ帳アプリです。ファイルの一覧表示・色分け表示・拡張機能の追加など、開発に便利な機能が揃っています。エンジニアでなくても使えるシンプルなUIです。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-header">
+          <span class="step-badge both">Step 2</span>
+          <span class="step-title">Claude Code 拡張機能をインストール</span>
+        </div>
+        <div class="step-body">
+          <p>VS Codeのバージョン1.98.0以上が必要です。<span class="ik">Cmd + Shift + X</span>（Mac）または<span class="ik">Ctrl + Shift + X</span>（Windows）で拡張機能パネルを開き、「Claude Code」を検索してインストールします。</p>
+
+          <!-- VS Code Mock -->
+          <div class="vscode-frame">
+            <div class="vscode-titlebar">
+              <div class="t-dots" style="display:flex;gap:6px;"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div>
+              <span style="font-size:12px;color:#8b8b8b;margin-left:8px;">Visual Studio Code</span>
+            </div>
+            <div class="vscode-body">
+              <div class="vscode-sidebar">
+                <span>📄</span>
+                <span>🔍</span>
+                <span class="active">⬡</span>
+                <span>🐛</span>
+              </div>
+              <div class="vscode-editor">
+                <div style="color:#8b8b8b;font-size:11px;margin-bottom:12px;">拡張機能を検索</div>
+                <div style="background:#3c3c3c;border-radius:4px;padding:6px 10px;font-size:11px;color:#d4d4d4;margin-bottom:12px;">
+                  🔍 Claude Code
+                </div>
+                <div style="background:#252526;border-radius:6px;padding:12px;border:1px solid rgba(245,158,11,0.4);">
+                  <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                    <div style="width:32px;height:32px;background:rgba(245,158,11,0.2);border-radius:6px;display:flex;align-items:center;justify-content:center;">⚡</div>
+                    <div>
+                      <div style="font-size:13px;font-weight:700;color:#fbbf24;">Claude Code</div>
+                      <div style="font-size:11px;color:#8b8b8b;">Anthropic</div>
+                    </div>
+                    <div style="margin-left:auto;background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);color:#fbbf24;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:700;">インストール ← ここ</div>
+                  </div>
+                  <div style="font-size:11px;color:#8b8b8b;">AI-powered coding assistant by Anthropic</div>
+                </div>
+              </div>
+              <div class="vscode-panel">
+                <div class="vscode-panel-title">Claude Code</div>
+                <div class="vsc-msg">
+                  <div class="vsc-msg-icon">🤖</div>
+                  <div class="vsc-msg-text">こんにちは！何をお手伝いしますか？</div>
+                </div>
+                <div class="vsc-msg">
+                  <div class="vsc-msg-icon">👤</div>
+                  <div class="vsc-msg-text user">このファイルのバグを直して</div>
+                </div>
+                <div class="vsc-msg">
+                  <div class="vsc-msg-icon">🤖</div>
+                  <div class="vsc-msg-text">12行目のエラーを修正しました。変更をご確認ください。</div>
+                </div>
+                <div class="vsc-input">指示を入力...</div>
+              </div>
+            </div>
+          </div>
+
+          <ul class="al" style="margin-top:12px;">
+            <li><span class="am a">A</span> 左サイドバーの拡張機能アイコン（⬡）をクリック</li>
+            <li><span class="am b">B</span> 「Claude Code」を検索して「インストール」をクリック</li>
+            <li><span class="am c">C</span> VS Codeの右側にClaudeのパネルが表示されれば完了</li>
+            <li><span class="am d">D</span> パネルでClaudeアカウントにログインして使用開始</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== S10 ===== -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">10</div>
+      <div>
+        <div class="section-title">活用例・よくある問題</div>
+        <div class="section-subtitle">こんなことができる＋つまずきポイント</div>
+      </div>
+    </div>
+
+    <!-- Use cases -->
+    <p style="font-weight:700;font-size:15px;margin-bottom:16px;color:var(--text);">💡 こんな指示ができます（プログラミング知識ゼロでOK）</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0;">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;">
+        <div style="font-size:18px;margin-bottom:6px;">🌐</div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:4px;">Webページ・アプリ作成</div>
+        <div style="font-size:11px;color:var(--text-dim);">「ランディングページを作って」「ToDoアプリを作って」</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;">
+        <div style="font-size:18px;margin-bottom:6px;">📁</div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:4px;">ファイル・フォルダ整理</div>
+        <div style="font-size:11px;color:var(--text-dim);">「このフォルダを種類別に整理して」「ファイルを一括リネームして」</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;">
+        <div style="font-size:18px;margin-bottom:6px;">📊</div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:4px;">データ処理・Excel作業</div>
+        <div style="font-size:11px;color:var(--text-dim);">「CSVデータを集計してグラフ付きExcelにして」</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;">
+        <div style="font-size:18px;margin-bottom:6px;">✍️</div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:4px;">文章作成・編集</div>
+        <div style="font-size:11px;color:var(--text-dim);">「この文章をもっとわかりやすくして」「30本のSNS投稿を一括生成して」</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;">
+        <div style="font-size:18px;margin-bottom:6px;">🔄</div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:4px;">繰り返し作業の自動化</div>
+        <div style="font-size:11px;color:var(--text-dim);">「毎週月曜に週報のテンプレートを作るスクリプトを作って」</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;">
+        <div style="font-size:18px;margin-bottom:6px;">🐛</div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:4px;">エラー修正・デバッグ</div>
+        <div style="font-size:11px;color:var(--text-dim);">「このコードが動かないので直して」（コードを貼り付けるだけ）</div>
+      </div>
+    </div>
+
+    <!-- Problems -->
+    <p style="font-weight:700;font-size:15px;margin:24px 0 16px;color:var(--text);">🔧 よくある問題と解決策</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-header">
+          <span class="step-badge danger">問題1</span>
+          <span class="step-title">「claude: command not found」と表示される</span>
+        </div>
+        <div class="step-body">
+          <ul class="al">
+            <li><span class="am a">A</span> <strong>ターミナルを再起動する</strong>：インストール直後は再起動が必要な場合があります。ターミナルを閉じて再度開いてください。</li>
+            <li><span class="am b">B</span> <strong>Homebrewの場合</strong>：<span class="ik">brew doctor</span> を実行してエラーを確認。パスが通っていない場合は <span class="ik">echo 'export PATH="/opt/homebrew/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc</span> を実行。</li>
+          </ul>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-header">
+          <span class="step-badge danger">問題2</span>
+          <span class="step-title">Claudeが思ったように動かない・暴走する</span>
+        </div>
+        <div class="step-body">
+          <ul class="al">
+            <li><span class="am a">A</span> <strong>即座にEscキーを押す</strong>：処理を中断できます。これが一番重要です。</li>
+            <li><span class="am b">B</span> <strong>指示をより具体的にする</strong>：「修正して」ではなく「〇〇ファイルの△△行目を□□に変更して」のように。</li>
+            <li><span class="am c">C</span> <strong>新しいセッションで再試行</strong>：<span class="ik">/clear</span> でリセットするか、ターミナルを再起動してクリーンな状態から始める。</li>
+          </ul>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-header">
+          <span class="step-badge danger">問題3</span>
+          <span class="step-title">使用制限に達してしまう</span>
+        </div>
+        <div class="step-body">
+          <ul class="al">
+            <li><span class="am a">A</span> <strong>5時間待てばリセット</strong>されます。時間をおいて再試行してください。</li>
+            <li><span class="am b">B</span> <strong>/compact を活用する</strong>：コンテキストを圧縮して使用量を節約できます。長いセッションの途中で定期的に実行しましょう。</li>
+            <li><span class="am c">C</span> <strong>シンプルな質問は通常チャット（claude.ai）を使う</strong>：ファイル操作が不要なときはブラウザ版で対応すると節約できます。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div style="margin-top:32px;background:var(--card);border:1px solid rgba(245,158,11,0.3);border-radius:16px;padding:24px;">
+      <p style="font-weight:700;font-size:16px;margin-bottom:16px;color:#fcd34d;">📋 全体の流れ まとめ</p>
+      <ol class="ns">
+        <li>Pro プラン以上に加入（<a href="https://claude.ai" style="color:#fbbf24;">claude.ai</a>）</li>
+        <li>Claude Desktop をダウンロード・インストール（<a href="https://claude.com/download" style="color:#fbbf24;">claude.com/download</a>）</li>
+        <li>デスクトップアプリの「<strong>Code タブ</strong>」からまず試してみる</li>
+        <li>ターミナルからも使いたい場合は <span class="ik">claude</span> コマンドをインストール</li>
+        <li>専用の<strong>作業フォルダ</strong>を作ってその中で起動する（重要！）</li>
+        <li><span class="ik">/init</span> で <strong>CLAUDE.md</strong> を生成してプロジェクトのルールを記憶させる</li>
+        <li>VS Code + 拡張機能でさらに快適な環境を整える</li>
+        <li>MCP連携（MCPマニュアル参照）で他ツールとも繋げる</li>
+      </ol>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== BILLING DANGER SECTION ===== -->
+<div class="container">
+  <div class="divider"></div>
+
+  <div class="section" id="billing">
+
+    <!-- HERO DANGER BANNER -->
+    <div style="background:linear-gradient(135deg,rgba(239,68,68,0.12),rgba(245,158,11,0.08));border:2px solid rgba(239,68,68,0.5);border-radius:20px;padding:28px 32px;margin-bottom:36px;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-30px;right:-30px;font-size:120px;opacity:0.05;">🚨</div>
+      <div style="display:flex;align-items:flex-start;gap:16px;">
+        <div style="font-size:36px;flex-shrink:0;">🚨</div>
+        <div>
+          <div style="font-size:20px;font-weight:900;color:#f87171;margin-bottom:8px;">数十万円の請求を防ぐ完全ガイド</div>
+          <div style="font-size:14px;color:var(--text-muted);line-height:1.9;">
+            実際にMaxプランの月額費用に加えて<strong style="color:#fbbf24;">約$300（約4万円）の追加課金</strong>を受けたユーザー事例があります。<br>
+            正しく理解して設定するだけで、予想外の高額請求は完全に防げます。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2つの課金経路 -->
+    <div class="section-header">
+      <div class="section-number" style="background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 4px 16px rgba(239,68,68,0.4);">⚠</div>
+      <div>
+        <div class="section-title">まず知るべき「2つの課金経路」</div>
+        <div class="section-subtitle">ここを誤解すると二重課金・予想外請求が発生します</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+      <div style="background:rgba(16,185,129,0.06);border:2px solid rgba(16,185,129,0.35);border-radius:14px;padding:20px;">
+        <div style="font-size:22px;margin-bottom:8px;">✅</div>
+        <div style="font-weight:700;font-size:15px;color:#34d399;margin-bottom:10px;">経路①：サブスクリプション（推奨）</div>
+        <div style="font-size:13px;color:var(--text-muted);line-height:1.8;">
+          <strong>Pro（$20/月）・Max（$100〜200/月）</strong>など月額プランに含まれる枠内で使う方法。<br><br>
+          1日10分でも10時間でも請求額は変わりません。<strong style="color:#6ee7b7;">コストが完全に予測可能</strong>で、個人・初心者に最適です。
+        </div>
+      </div>
+      <div style="background:rgba(239,68,68,0.06);border:2px solid rgba(239,68,68,0.35);border-radius:14px;padding:20px;">
+        <div style="font-size:22px;margin-bottom:8px;">⚠️</div>
+        <div style="font-weight:700;font-size:15px;color:#f87171;margin-bottom:10px;">経路②：API従量課金（上限なし）</div>
+        <div style="font-size:13px;color:var(--text-muted);line-height:1.8;">
+          Anthropic Consoleで発行したAPIキーを使う方法。<strong>使った分だけ後払い</strong>で、上限を設定しないと青天井になります。<br><br>
+          <strong style="color:#f87171;">サブスクとAPIは完全に別の課金系統です！</strong>Pro加入中でもAPIキーを設定すると別途請求されます。
+        </div>
+      </div>
+    </div>
+
+    <div style="background:rgba(239,68,68,0.08);border:1.5px solid rgba(239,68,68,0.4);border-radius:12px;padding:18px 22px;margin-bottom:32px;">
+      <div style="font-weight:700;color:#f87171;margin-bottom:10px;font-size:14px;">🔥 実際に起きた事故パターン</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--text-muted);">
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="color:#f87171;font-weight:700;flex-shrink:0;">①</span><span>最初にAPIキーで設定→後でMaxに加入→APIキーを削除し忘れる→<strong style="color:#fbbf24;">1か月で+$300の追加課金</strong></span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="color:#f87171;font-weight:700;flex-shrink:0;">②</span><span>Extra Usage（追加利用）をONにしたまま放置→プランの枠を超えるたびにAPI料金で従量課金</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="color:#f87171;font-weight:700;flex-shrink:0;">③</span><span>Auto-reload（自動チャージ）をONにしたまま→残高が減るたびに自動でクレジット購入</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start;"><span style="color:#f87171;font-weight:700;flex-shrink:0;">④</span><span>ループ処理・自動化スクリプトを長時間放置→大量のトークンを消費して高額請求</span></div>
+      </div>
+    </div>
+
+    <!-- DANGER CHECK 1: APIキー確認 -->
+    <div style="margin-bottom:32px;">
+      <div style="font-weight:700;font-size:16px;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+        <span style="background:#ef4444;color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;flex-shrink:0;">1</span>
+        今すぐ確認：APIキーが残っていないか
+      </div>
+
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;">
+        <div style="background:linear-gradient(90deg,rgba(239,68,68,0.1),transparent);padding:14px 20px;border-bottom:1px solid var(--border);font-weight:700;font-size:14px;color:#fca5a5;">
+          🔍 今すぐ実行してください
+        </div>
+        <div style="padding:20px;">
+          <p style="color:var(--text-muted);font-size:13px;margin-bottom:12px;">ターミナルで以下を実行して、APIキーが環境変数に残っていないか確認します：</p>
+
+          <div class="terminal">
+            <div class="terminal-chrome"><div class="t-dots" style="display:flex;gap:6px;"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="t-title">ターミナル — APIキー確認</div></div>
+            <div class="t-body">
+              <div><span class="t-dim"># ── Mac / Linux ──</span></div>
+              <div><span class="t-prompt">$ </span><span class="t-cmd">echo $ANTHROPIC_API_KEY</span></div>
+              <div style="margin-top:4px;"><span class="t-dim"># 何も表示されなければ安全。</span></div>
+              <div><span class="t-dim"># 「sk-ant-api03-...」のような文字列が出たら要対処！</span></div>
+              <br>
+              <div><span class="t-dim"># ── Windows（PowerShell）──</span></div>
+              <div><span class="t-prompt">PS> </span><span class="t-cmd">echo $env:ANTHROPIC_API_KEY</span></div>
+              <br>
+              <div><span class="t-dim"># 設定ファイルにも残っていないか確認（Mac）</span></div>
+              <div><span class="t-prompt">$ </span><span class="t-cmd">grep -r "ANTHROPIC_API_KEY" ~/.zshrc ~/.bashrc ~/.bash_profile 2>/dev/null</span></div>
+            </div>
+          </div>
+
+          <div style="margin-top:16px;">
+            <div style="font-size:13px;font-weight:700;color:#fbbf24;margin-bottom:10px;">表示された場合の対処手順：</div>
+            <div class="terminal">
+              <div class="terminal-chrome"><div class="t-dots" style="display:flex;gap:6px;"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="t-title">APIキーを削除する</div></div>
+              <div class="t-body">
+                <div><span class="t-dim"># ── Mac：設定ファイルを開いて該当行を削除 ──</span></div>
+                <div><span class="t-prompt">$ </span><span class="t-cmd">nano ~/.zshrc</span></div>
+                <div><span class="t-dim">  → 「export ANTHROPIC_API_KEY=...」の行を削除して保存</span></div>
+                <br>
+                <div><span class="t-prompt">$ </span><span class="t-cmd">source ~/.zshrc</span></div>
+                <div><span class="t-dim">  → 変更を反映</span></div>
+                <br>
+                <div><span class="t-dim"># ── Windows：システム環境変数から削除 ──</span></div>
+                <div><span class="t-dim">  「システムのプロパティ」→「環境変数」→ ANTHROPIC_API_KEY を削除</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DANGER CHECK 2: /status で認証確認 -->
+    <div style="margin-bottom:32px;">
+      <div style="font-weight:700;font-size:16px;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+        <span style="background:#ef4444;color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;flex-shrink:0;">2</span>
+        /status でログイン方法を確認する
+      </div>
+
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;">
+        <div style="background:linear-gradient(90deg,rgba(245,158,11,0.1),transparent);padding:14px 20px;border-bottom:1px solid var(--border);font-weight:700;font-size:14px;color:#fbbf24;">
+          ⚡ サブスクリプション認証かAPIキー認証か確認
+        </div>
+        <div style="padding:20px;">
+          <div class="terminal">
+            <div class="terminal-chrome"><div class="t-dots" style="display:flex;gap:6px;"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="t-title">Claude Code セッション</div></div>
+            <div class="t-body">
+              <div><span class="t-prompt">&gt; </span><span class="t-cmd">/status</span></div>
+              <br>
+              <div><span class="t-dim">── 安全なパターン（サブスクリプション認証）──</span></div>
+              <div><span class="t-out">Login method:  Claude.ai Account</span></div>
+              <div><span class="t-out">Plan:          Pro ✓  ← 「Pro」または「Max」なら安全</span></div>
+              <br>
+              <div><span class="t-err">── 危険なパターン（API課金が発生している）──</span></div>
+              <div><span class="t-err">Login method:  Claude API Account  ← 要注意！</span></div>
+              <div><span class="t-err">Plan:          Claude api           ← API従量課金中！</span></div>
+            </div>
+          </div>
+
+          <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:12px;">
+              <div style="font-size:12px;font-weight:700;color:#34d399;margin-bottom:6px;">✅ 安全な状態</div>
+              <div style="font-size:12px;color:var(--text-muted);">「Pro」「Max」「Team」と表示されている<br>→ サブスク範囲内で動作中。安心してOK</div>
+            </div>
+            <div style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:12px;">
+              <div style="font-size:12px;font-weight:700;color:#f87171;margin-bottom:6px;">🚨 危険な状態</div>
+              <div style="font-size:12px;color:var(--text-muted);">「Claude api」「API Account」と表示<br>→ 今すぐAPIキーを削除してサブスク再認証</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DANGER CHECK 3: Extra Usage / Console -->
+    <div style="margin-bottom:32px;">
+      <div style="font-weight:700;font-size:16px;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+        <span style="background:#ef4444;color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;flex-shrink:0;">3</span>
+        Extra Usage・Auto-reload の設定を確認する
+      </div>
+
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;">
+        <div style="background:linear-gradient(90deg,rgba(239,68,68,0.1),transparent);padding:14px 20px;border-bottom:1px solid var(--border);font-weight:700;font-size:14px;color:#fca5a5;">
+          🌐 claude.ai → 設定 → 請求・使用量で確認
+        </div>
+        <div style="padding:20px;">
+          <!-- Browser mock -->
+          <div style="background:#0d1117;border:1.5px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;">
+            <div style="background:#161b22;padding:8px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);">
+              <div style="display:flex;gap:5px;"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);">claude.ai/<span style="color:#fbbf24;">settings/billing</span></div>
+            </div>
+            <div style="padding:18px;">
+              <div style="font-size:14px;font-weight:700;margin-bottom:4px;">請求・使用量</div>
+              <div style="font-size:11px;color:var(--text-dim);margin-bottom:16px;">プランの追加利用設定を管理します</div>
+
+              <!-- Extra Usage -->
+              <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:10px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                  <div>
+                    <div style="font-size:13px;font-weight:700;">Extra Usage（追加利用）</div>
+                    <div style="font-size:11px;color:var(--text-dim);">プランの枠を超えた分をAPI料金で従量課金</div>
+                  </div>
+                  <div style="background:#374151;color:#6b7280;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;">OFF ← これが安全</div>
+                </div>
+                <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:6px;padding:8px 12px;font-size:11px;color:#34d399;">
+                  ✅ OFFの場合：枠を超えると一時停止。5時間待てばリセット。追加課金なし。
+                </div>
+              </div>
+
+              <!-- Spending Cap -->
+              <div style="background:#0a0f1a;border:1.5px solid rgba(245,158,11,0.4);border-radius:8px;padding:12px 14px;margin-bottom:10px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                  <div>
+                    <div style="font-size:13px;font-weight:700;">月間支出上限（Spending Cap）</div>
+                    <div style="font-size:11px;color:var(--text-dim);">Extra Usageをオンにする場合は必ず設定すること</div>
+                  </div>
+                  <div style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);color:#fbbf24;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;">$10/月 に設定推奨</div>
+                </div>
+                <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:6px;padding:8px 12px;font-size:11px;color:#fbbf24;">
+                  ⭐ Extra UsageをONにするなら「Adjust limit」で上限額を必ず設定。まずは$10〜$20程度から。
+                </div>
+              </div>
+
+              <!-- Auto-reload -->
+              <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                  <div>
+                    <div style="font-size:13px;font-weight:700;">Auto-reload（自動チャージ）</div>
+                    <div style="font-size:11px;color:var(--text-dim);">残高が設定額を下回ると自動でクレジット購入</div>
+                  </div>
+                  <div style="background:#374151;color:#6b7280;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;">OFF ← 最初はOFF推奨</div>
+                </div>
+                <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:6px;padding:8px 12px;font-size:11px;color:#f87171;">
+                  ⚠️ ONにすると残高ゼロになるたびに自動でカードに課金されます。慣れるまでOFFが安全。
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <ul class="al">
+            <li><span class="am a">A</span> <strong>Extra Usage は初めはOFF</strong>のままにしてください。ONにすると枠を超えた分がAPIレートで自動課金されます。</li>
+            <li><span class="am b">B</span> <strong>どうしてもExtra Usageが必要な場合</strong>は「Adjust limit」で月間上限を必ず設定（$10〜$20推奨）。</li>
+            <li><span class="am c">C</span> <strong>Auto-reloadは最初はOFF</strong>。使い慣れて残高管理に自信が出てきてからONを検討しましょう。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- DANGER CHECK 4: CLAUDE.md コスト設定 -->
+    <div style="margin-bottom:32px;">
+      <div style="font-weight:700;font-size:16px;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+        <span style="background:#f59e0b;color:#000;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;flex-shrink:0;">4</span>
+        CLAUDE.md にコスト削減ルールを書く
+      </div>
+
+      <p style="color:var(--text-muted);font-size:13px;margin-bottom:12px;">CLAUDE.md に以下の指示を追加することで、Claudeが無駄にトークンを消費しないようになります。</p>
+
+      <div class="claudemd">
+        <div class="claudemd-header">📄 CLAUDE.md — API課金抑制ルール（コピペ推奨）</div>
+        <div class="claudemd-body">
+          <div class="md-h2">## Cost Awareness Rules</div>
+          <div class="md-bullet">- Keep responses concise. Don't repeat yourself.</div>
+          <div class="md-bullet">- Avoid repeating large code blocks unless necessary.</div>
+          <div class="md-bullet">- Prefer explanation over full implementation when possible.</div>
+          <div class="md-bullet">- Do NOT refactor existing code unless clearly requested.</div>
+          <div class="md-bullet">- Prefer minimal, localized changes over large-scale rewrites.</div>
+          <div class="md-bullet">- Before making changes, briefly explain what you plan to do.</div>
+          <br>
+          <div class="md-h2">## Security Rules</div>
+          <div class="md-bullet">- Never output API keys, secrets, or credentials.</div>
+          <div class="md-bullet">- Do not log personal data.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;font-size:12px;color:var(--text-dim);padding:10px 14px;background:var(--card2);border-radius:8px;border-left:3px solid var(--primary);">
+        💡 日本語でも書けます：「不必要な長文を避けること」「同じコードを繰り返さないこと」「変更前に何をするか説明すること」
+      </div>
+    </div>
+
+    <!-- DANGER CHECK 5: /cost コマンド -->
+    <div style="margin-bottom:32px;">
+      <div style="font-weight:700;font-size:16px;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+        <span style="background:#f59e0b;color:#000;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;flex-shrink:0;">5</span>
+        /cost でリアルタイムの使用量を確認する
+      </div>
+
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;">
+        <div style="padding:20px;">
+          <div class="terminal">
+            <div class="terminal-chrome"><div class="t-dots" style="display:flex;gap:6px;"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="t-title">使用量の確認コマンド</div></div>
+            <div class="t-body">
+              <div><span class="t-dim"># ── セッション中に使用量を確認 ──</span></div>
+              <div><span class="t-prompt">&gt; </span><span class="t-cmd">/cost</span></div>
+              <div><span class="t-out">Session cost: $0.12  (今のセッションの使用量)</span></div>
+              <div><span class="t-out">Context:      45%    (コンテキスト使用率)</span></div>
+              <br>
+              <div><span class="t-dim"># ── コンテキストが増えてきたら圧縮 ──</span></div>
+              <div><span class="t-prompt">&gt; </span><span class="t-cmd">/compact</span></div>
+              <div><span class="t-out">✓ コンテキストを圧縮しました（約40%削減）</span></div>
+              <br>
+              <div><span class="t-dim"># ── 環境診断（APIキーの状態も確認可能）──</span></div>
+              <div><span class="t-prompt">$ </span><span class="t-cmd">claude doctor</span></div>
+              <div><span class="t-out">✓ Auth:    Claude.ai subscription</span></div>
+              <div><span class="t-out">✓ Plan:    Pro</span></div>
+              <div><span class="t-out">✓ Version: 2.x.x (latest)</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DANGER CHECK 6: Console設定 -->
+    <div style="margin-bottom:32px;">
+      <div style="font-weight:700;font-size:16px;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+        <span style="background:#8b5cf6;color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;flex-shrink:0;">6</span>
+        APIキーを使う場合の Console での上限設定
+      </div>
+
+      <div class="callout purple">
+        <div class="callout-icon">📌</div>
+        <div class="callout-body">
+          <strong>APIキーを使う場合のみ必要な設定です</strong>
+          サブスクリプション（Pro/Max）のみを使っている方はこのセクションは不要です。アプリ開発などでAPIキーを使う方のみ設定してください。
+        </div>
+      </div>
+
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:14px;">
+        <div style="background:linear-gradient(90deg,rgba(139,92,246,0.1),transparent);padding:14px 20px;border-bottom:1px solid var(--border);font-weight:700;font-size:14px;color:#c4b5fd;">
+          🌐 console.anthropic.com での Spend Limit 設定手順
+        </div>
+        <div style="padding:20px;">
+          <ol class="ns">
+            <li><a href="https://console.anthropic.com" style="color:#fbbf24;">console.anthropic.com</a> にアクセスしてログイン</li>
+            <li>左メニューの「<strong>Settings</strong>」→「<strong>Billing</strong>」を開く</li>
+            <li>「<strong>Spend limits</strong>」セクションで月間上限額を設定（まず$10〜$50推奨）</li>
+            <li>「<strong>Auto-reload</strong>」はOFFのままにする</li>
+            <li>「<strong>Usage alerts</strong>」でメール通知のしきい値を設定（例：$5になったら通知）</li>
+            <li>請求ページを定期的に確認する習慣をつける</li>
+          </ol>
+
+          <div style="margin-top:16px;background:#0a0f1a;border:1px solid var(--border);border-radius:8px;padding:14px 16px;">
+            <div style="font-size:12px;font-weight:700;color:#fbbf24;margin-bottom:10px;">📊 APIモデル別の料金目安（2026年3月時点）</div>
+            <table style="width:100%;border-collapse:collapse;font-size:12px;">
+              <tr style="border-bottom:1px solid var(--border);">
+                <th style="padding:6px 10px;text-align:left;color:var(--text-dim);font-weight:700;">モデル</th>
+                <th style="padding:6px 10px;text-align:right;color:var(--text-dim);font-weight:700;">入力（100万トークン）</th>
+                <th style="padding:6px 10px;text-align:right;color:var(--text-dim);font-weight:700;">出力（100万トークン）</th>
+                <th style="padding:6px 10px;text-align:left;color:var(--text-dim);font-weight:700;">用途</th>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+                <td style="padding:8px 10px;color:#f87171;font-weight:700;">Opus 4.6</td>
+                <td style="padding:8px 10px;text-align:right;color:var(--text-muted);">$5</td>
+                <td style="padding:8px 10px;text-align:right;color:#f87171;font-weight:700;">$25 ← 高い</td>
+                <td style="padding:8px 10px;color:var(--text-dim);">複雑なタスク・本当に必要な時だけ</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+                <td style="padding:8px 10px;color:#fbbf24;font-weight:700;">Sonnet 4.6</td>
+                <td style="padding:8px 10px;text-align:right;color:var(--text-muted);">$3</td>
+                <td style="padding:8px 10px;text-align:right;color:var(--text-muted);">$15</td>
+                <td style="padding:8px 10px;color:var(--text-dim);">通常のコーディング・最もバランスが良い</td>
+              </tr>
+              <tr>
+                <td style="padding:8px 10px;color:#34d399;font-weight:700;">Haiku 4.5</td>
+                <td style="padding:8px 10px;text-align:right;color:var(--text-muted);">$1</td>
+                <td style="padding:8px 10px;text-align:right;color:#34d399;font-weight:700;">$5 ← 安い</td>
+                <td style="padding:8px 10px;color:var(--text-dim);">シンプルなタスク・コスト重視の場合</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- まとめチェックリスト -->
+    <div style="background:linear-gradient(135deg,rgba(16,185,129,0.06),rgba(245,158,11,0.06));border:2px solid rgba(16,185,129,0.3);border-radius:16px;padding:24px;">
+      <div style="font-weight:700;font-size:16px;color:#34d399;margin-bottom:18px;display:flex;align-items:center;gap:10px;">
+        ✅ 課金対策チェックリスト — すべてOKなら安心
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:13px;">
+          <span style="color:#34d399;font-size:16px;">☑</span>
+          <span style="color:var(--text-muted);">/status で「Pro」か「Max」と表示される</span>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:13px;">
+          <span style="color:#34d399;font-size:16px;">☑</span>
+          <span style="color:var(--text-muted);">環境変数に ANTHROPIC_API_KEY が残っていない</span>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:13px;">
+          <span style="color:#34d399;font-size:16px;">☑</span>
+          <span style="color:var(--text-muted);">Extra Usage は OFF（またはSpending Cap設定済み）</span>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:13px;">
+          <span style="color:#34d399;font-size:16px;">☑</span>
+          <span style="color:var(--text-muted);">Auto-reload は OFF（初心者は特に）</span>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:13px;">
+          <span style="color:#34d399;font-size:16px;">☑</span>
+          <span style="color:var(--text-muted);">CLAUDE.md にコスト削減ルールを記述した</span>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:13px;">
+          <span style="color:#34d399;font-size:16px;">☑</span>
+          <span style="color:var(--text-muted);">定期的に /cost と Console の請求ページを確認</span>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:13px;">
+          <span style="color:#34d399;font-size:16px;">☑</span>
+          <span style="color:var(--text-muted);">ループ処理・自動化は短時間でテストしてから本番実行</span>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:13px;">
+          <span style="color:#34d399;font-size:16px;">☑</span>
+          <span style="color:var(--text-muted);">APIキーを使う場合は Spend Limit を設定済み</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <p style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px;">🎉 まず「TODOアプリを作って」と試してみましょう</p>
+  <p>小さな成功体験がClaude Codeの使い方を一番早く学ぶ方法です。<br>エラーが出ても大丈夫——それもClaudeに貼り付ければ自動で直してくれます。</p>
+  <p style="margin-top:16px;">
+    公式ドキュメント：<a href="https://code.claude.com/docs/ja/setup">セットアップガイド</a> ｜
+    <a href="https://code.claude.com/docs/ja">Claude Code Docs（日本語）</a> ｜
+    <a href="https://claude.com/download">Claude Desktop ダウンロード</a>
+  </p>
+</div>
+
+</body>
+</html>
